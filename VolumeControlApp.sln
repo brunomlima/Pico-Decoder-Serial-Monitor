@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34928.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VolumeControlApp", "VolumeControlApp\VolumeControlApp.csproj", "{3FD88451-6692-4B62-A989-0932F085A694}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B8524871-75CF-4957-8B43-5BE0B4EED0D7} = {B8524871-75CF-4957-8B43-5BE0B4EED0D7}
+	EndProjectSection
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "VolumeControlAppSetup", "VolumeControlAppSetup\VolumeControlAppSetup.vdproj", "{B8524871-75CF-4957-8B43-5BE0B4EED0D7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3FD88451-6692-4B62-A989-0932F085A694}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FD88451-6692-4B62-A989-0932F085A694}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FD88451-6692-4B62-A989-0932F085A694}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FD88451-6692-4B62-A989-0932F085A694}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8524871-75CF-4957-8B43-5BE0B4EED0D7}.Debug|Any CPU.ActiveCfg = Debug
+		{B8524871-75CF-4957-8B43-5BE0B4EED0D7}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {723EE51E-5F1C-4141-8A91-D7D35215C184}
+	EndGlobalSection
+EndGlobal
