@@ -11,9 +11,13 @@ unsigned long lastDebounceTime = 0;
 const unsigned long debounceDelay = 5;
 int functionKey = 0;  // Controla as teclas F no modo 3
 
+unsigned long buttonPressStart = 0;  // Tempo em que o botão foi pressionado
+bool longPressDetected = false;     // Flag para verificar se um pressionamento longo foi detectado
+const unsigned long longPressDuration = 2000;  // Tempo para pressionamento longo (2 segundos)
+
 // Modos de operação
-enum Mode { UNDO_REDO, COPY_PASTE, FUNCTION_KEYS };
-Mode currentMode = UNDO_REDO;
+enum Mode { UNDO_REDO, COPY_PASTE, VOLUME };
+Mode currentMode = VOLUME;
 
 void setup() {
     Serial.begin(115200);
@@ -23,17 +27,53 @@ void setup() {
 
     Keyboard.begin();
     delay(1000);  // Tempo para estabilização
-    Serial.println("== Controle de Teclas Iniciado ==");
+    Serial.println("== Controle de Teclas e Volume Iniciado ==");
 }
 
 // Função para alternar entre os modos
 void switchMode() {
     currentMode = static_cast<Mode>((currentMode + 1) % 3);
     functionKey = 0;  // Reseta a tecla F ao alternar para o modo 3
-    String modeName = (currentMode == UNDO_REDO) ? "Modo: Ctrl + Z / Ctrl + Y" :
-                      (currentMode == COPY_PASTE) ? "Modo: Ctrl + C / Ctrl + V" : 
-                      "Modo: Teclas F1 até F23";
+    String modeName = (currentMode == VOLUME) ? "Modo: Volume" :
+                      (currentMode == UNDO_REDO) ? "Modo: Ctrl + Z / Ctrl + Y" :
+                      "Modo: Ctrl + C / Ctrl + V";
     Serial.println(modeName);
+}
+
+// Ação rápida para o modo UNDO_REDO
+void quickPressUndoRedo() {
+    Serial.println("Quick Press (UNDO_REDO): Ctrl + Z");
+    Keyboard.press(KEY_LEFT_CTRL);
+    Keyboard.write('z');
+    Keyboard.releaseAll();
+}
+
+// Ação rápida para o modo COPY_PASTE
+void quickPressCopyPaste() {
+    Serial.println("Quick Press (COPY_PASTE): Ctrl + C");
+    Keyboard.press(KEY_LEFT_CTRL);
+    Keyboard.write('c');
+    Keyboard.releaseAll();
+}
+
+// Ação rápida para o modo VOLUME
+void quickPressVolume() {
+    Serial.println("mute");    
+}
+
+// Executa a ação rápida baseada no modo atual
+void quickPressAction() {
+    switch (currentMode) {
+        case UNDO_REDO:
+            quickPressUndoRedo();
+            break;
+        case COPY_PASTE:
+            quickPressCopyPaste();
+            break;
+        case VOLUME:
+            quickPressVolume();
+            break;
+    }
 }
 
 // Função para verificar o encoder e executar ações
@@ -61,11 +101,8 @@ void verificarEncoder() {
                             Keyboard.releaseAll();
                             Serial.println("Ctrl + C (Copy)");
                             break;
-                        case FUNCTION_KEYS:
-                            if (functionKey > 0) functionKey--;
-                            Keyboard.write(KEY_F1 + functionKey);
-                            Serial.print("F");
-                            Serial.println(functionKey + 1);
+                        case VOLUME:
+                            Serial.println("vol_up");
                             break;
                     }
                 } else {
@@ -83,11 +120,8 @@ void verificarEncoder() {
                             Keyboard.releaseAll();
                             Serial.println("Ctrl + V (Paste)");
                             break;
-                        case FUNCTION_KEYS:
-                            if (functionKey < 22) functionKey++;
-                            Keyboard.write(KEY_F1 + functionKey);
-                            Serial.print("F");
-                            Serial.println(functionKey + 1);
+                        case VOLUME:
+                            Serial.println("vol_down");
                             break;
                     }
                 }
@@ -97,14 +131,25 @@ void verificarEncoder() {
     }
 }
 
-// Função para verificar o botão e alternar entre modos
+// Função para verificar o botão e alternar entre modos ou executar ação rápida
 void verificarBotao() {
     if (digitalRead(SW_PIN) == LOW) {  // Botão pressionado
-        delay(500); // Evita rebotes
-        if (digitalRead(SW_PIN) == LOW) {  // Se ainda estiver pressionado
-            switchMode();  // Alterna o modo após 1 segundo de pressão
+        if (buttonPressStart == 0) {
+            buttonPressStart = millis();  // Marca o tempo em que o botão foi pressionado
         }
-        while (digitalRead(SW_PIN) == LOW);  // Espera até o botão ser solto
+
+        if (!longPressDetected && (millis() - buttonPressStart >= longPressDuration)) {
+            longPressDetected = true;
+            switchMode();  // Alterna o modo após 2 segundos de pressão
+        }
+    } else {  // Botão liberado
+        if (buttonPressStart > 0) {  // Se o botão foi pressionado anteriormente
+            if (!longPressDetected) {
+                quickPressAction();  // Executa ação rápida se não for um pressionamento longo
+            }
+            buttonPressStart = 0;  // Reseta o tempo de pressão
+            longPressDetected = false;  // Reseta a flag de pressionamento longo
+        }
     }
 }
 
