@@ -17,7 +17,7 @@ const unsigned long longPressDuration = 2000;  // Tempo para pressionamento long
 
 // Modos de operação
 enum Mode { UNDO_REDO, COPY_PASTE, VOLUME };
-Mode currentMode = VOLUME;
+Mode currentMode = UNDO_REDO;
 
 void setup() {
     Serial.begin(115200);
