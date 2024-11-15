@@ -17,7 +17,7 @@ const unsigned long longPressDuration = 2000;  // Tempo para pressionamento long
 
 // Modos de operação
 enum Mode { UNDO_REDO, COPY_PASTE, VOLUME };
-Mode currentMode = UNDO_REDO;
+Mode currentMode = VOLUME;
 
 void setup() {
     Serial.begin(115200);
@@ -26,7 +26,7 @@ void setup() {
     pinMode(SW_PIN, INPUT_PULLUP);
 
     Keyboard.begin();
-    delay(1000);  // Tempo para estabilização
+    delay(5000);  // Tempo para estabilização
     Serial.println("== Controle de Teclas e Volume Iniciado ==");
 }
 
