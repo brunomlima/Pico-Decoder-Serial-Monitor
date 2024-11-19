@@ -1,4 +1,5 @@
 using NAudio.CoreAudioApi;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Reflection;
 
@@ -106,11 +107,35 @@ namespace VolumeControlApp
             {
                 ToggleMute();
             }
+            else if (command.StartsWith("Modo:"))
+            {
+                // Exibe o aviso do Windows com o modo selecionado
+                string modeMessage = command.Substring(5).Trim(); // Remove "Modo:" do início
+                ShowBalloonNotification("Modo Selecionado", modeMessage, 1000); // Mostra por 1 segundo
+                AppendToMonitor($"Modo selecionado: {modeMessage}\r\n"); // Opcional: Exibe também no monitor serial
+            }
             else
             {
-                AppendToMonitor("Comando desconhecido\r\n");
+                string modeMessage = command.Trim(); 
+                AppendToMonitor($"Comando desconhecido: {modeMessage}\r\n");
             }
         }
+
+        private void ShowBalloonNotification(string title, string message, int durationMilliseconds)
+        {  
+            if (notifyIcon != null)
+            {
+                notifyIcon.BalloonTipTitle = title;
+                notifyIcon.BalloonTipText = message;
+                notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+                notifyIcon.ShowBalloonTip(durationMilliseconds); // Exibe a notificação
+            }
+            else
+            {
+                AppendToMonitor("Erro: NotifyIcon não configurado.\r\n");
+            }
+        }
+
 
         private void SetupAudioControl()
         {
@@ -309,13 +334,15 @@ namespace VolumeControlApp
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(() => txtSerialMonitor.AppendText(message)));
+                Invoke(new Action(() => AppendToMonitor(message)));
             }
             else
             {
-                txtSerialMonitor.AppendText(message);
+                txtSerialMonitor.AppendText(message + Environment.NewLine); // Adiciona nova linha explicitamente
+                txtSerialMonitor.ScrollToCaret(); // Garante que a mensagem seja visível
             }
         }
+
 
     }
 }
